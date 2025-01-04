@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "975080397264",
+    "project_id": "education-for-everyone-2f874",
+    "storage_bucket": "education-for-everyone-2f874.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:975080397264:android:ce3fd5c0912c4d4fe2c1d5",
+        "android_client_info": {
+          "package_name": "com.utkangul.herkesicinegitim"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBws9X2fsh9nTezB2hpV1j2kFAF3FCSy1o"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

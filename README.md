@@ -1,24 +1,16 @@
-# Herkes İçin Eğitim
+# education
 
-**Herkes İçin Eğitim** projesi, öğrencilerin gönüllü öğretmenlerden çevrimiçi ders randevusu alarak eğitim alabileceği ve derslerin çevrimiçi bir platform üzerinden yapılabileceği bir uygulamadır. Proje, Flutter ile geliştirildi ve Firebase Authentication, Firebase Realtime Database ve Google Meet API'ları kullanılarak desteklendi.
+A new Flutter project.
 
-## Proje Hedefi
+## Getting Started
 
-Bu projenin amacı, eğitime erişimde fırsat eşitliği sağlamak ve öğrencilerle gönüllü öğretmenleri bir araya getirerek kaliteli eğitimi ücretsiz olarak sunmaktır. Proje, gönüllü öğretmenlerin ders vermek için müsait oldukları saatlerde ders planlaması yapmalarına olanak tanırken, öğrencilerin de uygun zamanlarına göre randevu almasını sağlamaktadır.
+This project is a starting point for a Flutter application.
 
-## Özellikler
+A few resources to get you started if this is your first Flutter project:
 
-- Kullanıcı kaydı ve giriş işlemleri
-- Kullanıcının öğrenci veya öğretmen olarak kaydolması ve öğretmenin sunduğu dersleri seçmesi
-- Öğrencilerin gönüllü öğretmenlerden ders randevusu alması
-- Online dersler için Google Meet entegrasyonu
-- Öğrenciler ve öğretmenler için kullanıcı profilleri
-- Ders takvimi ve randevu yönetimi
-- Gerçek zamanlı bildirimler ve ders hatırlatıcıları
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-## Teknolojiler
-
-- **Flutter**
-- **Firebase Authentication**
-- **Firebase Realtime Database**
-- **Google Meet API**
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.
