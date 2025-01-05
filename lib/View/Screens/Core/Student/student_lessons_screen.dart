@@ -113,38 +113,59 @@ class _StudentLessonsScreenState extends State<StudentLessonsScreen> {
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Padding(
-                padding: EdgeInsets.only(left: 12 , right: 12 , top: 20 , bottom: 20),
+                padding:
+                    EdgeInsets.only(left: 12, right: 12, top: 20, bottom: 20),
                 child: FutureBuilder<Map<String, dynamic>?>(
                   future: _getClosestLesson(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return Center(child: CircularProgressIndicator());
                     }
-                            
+
                     if (snapshot.hasError || snapshot.data == null) {
-                      return Text(
-                        "Yaklaşan ders bulunamadı.",
-                        style: GoogleFonts.inter(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black54,
+                      return Center(
+                        child: Text(
+                          "Yaklaşan ders bulunamadı.",
+                          style: GoogleFonts.inter(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.darkGray,
+                          ),
                         ),
                       );
                     }
-                            
+
                     final lesson = snapshot.data!;
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          lesson['title'] ?? 'Bilinmeyen Ders',
-                          style: GoogleFonts.inter(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(4),
+                              decoration: BoxDecoration(
+                                color: AppColors.button,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Icon(
+                                Icons.play_lesson,
+                                color: AppColors.primary,
+                                size: 18,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            Text(
+                              lesson['title'] ?? 'Bilinmeyen Ders',
+                              style: GoogleFonts.inter(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ],
                         ),
-                        SizedBox(height: 8),
+                        SizedBox(height: 14),
                         Row(
                           children: [
                             Icon(Icons.calendar_today,
@@ -180,7 +201,6 @@ class _StudentLessonsScreenState extends State<StudentLessonsScreen> {
               ),
             ),
           ),
-
           Padding(
             padding: EdgeInsets.only(left: 16, top: 12, bottom: 12),
             child: Align(
@@ -195,7 +215,6 @@ class _StudentLessonsScreenState extends State<StudentLessonsScreen> {
               ),
             ),
           ),
-
           Expanded(
             child: StreamBuilder<List<Map<String, dynamic>>>(
               stream: getLessonsStream(),
@@ -239,19 +258,37 @@ class _StudentLessonsScreenState extends State<StudentLessonsScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              lesson['title'] ?? 'Bilinmeyen Ders',
-                              style: GoogleFonts.inter(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.button,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Icon(
+                                    Icons.play_lesson,
+                                    color: AppColors.primary,
+                                    size: 18,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  lesson['title'] ?? 'Bilinmeyen Ders',
+                                  style: GoogleFonts.inter(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(height: 8),
+                            SizedBox(height: 12),
                             Row(
                               children: [
                                 Icon(Icons.calendar_today,
-                                    size: 16, color: Colors.black54),
+                                    size: 16, color: Colors.black),
                                 SizedBox(width: 8),
                                 Text(
                                   formatLessonTime2(lesson['startTime']),
@@ -262,7 +299,7 @@ class _StudentLessonsScreenState extends State<StudentLessonsScreen> {
                                 ),
                                 Spacer(),
                                 Icon(Icons.access_time,
-                                    size: 16, color: Colors.black54),
+                                    size: 16, color: Colors.black),
                                 SizedBox(width: 8),
                                 Text(
                                   formatLessonTime(

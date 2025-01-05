@@ -15,8 +15,10 @@ import 'package:image_picker/image_picker.dart';
 
 class StudentProfileScreen extends StatefulWidget {
   final String userId;
+  final bool hideIcon;
 
-  const StudentProfileScreen({super.key, required this.userId});
+  const StudentProfileScreen(
+      {super.key, required this.userId, required this.hideIcon});
 
   @override
   _StudentProfileScreenState createState() => _StudentProfileScreenState();
@@ -25,7 +27,6 @@ class StudentProfileScreen extends StatefulWidget {
 class _StudentProfileScreenState extends State<StudentProfileScreen> {
   File? _imageFile;
 
-  // Pick an image from gallery
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final XFile? pickedFile =
@@ -42,25 +43,20 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
   Future<void> _uploadImageToFirebase() async {
     try {
       if (_imageFile != null) {
-        String fileName = '${widget.userId}_profile_photo'; // Dosya adı
+        String fileName = '${widget.userId}_profile_photo';
         FirebaseStorage storage = FirebaseStorage.instance;
-        Reference reference =
-            storage.ref().child('profile_photos/$fileName'); // Dosya yolu
-        UploadTask uploadTask =
-            reference.putFile(_imageFile!); // Fotoğrafı yükle
+        Reference reference = storage.ref().child('profile_photos/$fileName');
+        UploadTask uploadTask = reference.putFile(_imageFile!);
 
-        // Yükleme tamamlandığında snapshot al
         TaskSnapshot snapshot = await uploadTask;
 
-        // Yükleme tamamlandığında download URL'sini al
         String imageUrl = await snapshot.ref.getDownloadURL();
 
-        // Firestore'da profil fotoğrafı URL'sini güncelle
         await FirebaseFirestore.instance
             .collection('Users')
             .doc(widget.userId)
             .update({
-          'profilePhoto': imageUrl, // 'profilePhoto' alanını güncelliyoruz
+          'profilePhoto': imageUrl,
         });
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -119,6 +115,9 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.primary,
+      appBar: AppBar(
+        backgroundColor: AppColors.primary,
+      ),
       body: StreamBuilder<DocumentSnapshot>(
         stream: FirebaseFirestore.instance
             .collection('Users')
@@ -140,8 +139,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
             child: Column(
               children: [
                 Padding(
-                  padding: EdgeInsets.only(
-                      top: width < 380 ? 40 : 80, left: 16, right: 16),
+                  padding: EdgeInsets.only(left: 16, right: 16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -150,8 +148,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           GestureDetector(
-                            onTap:
-                                _pickImage, // Trigger image picker when tapped
+                            onTap: _pickImage,
                             child: CircleAvatar(
                               radius: 35,
                               backgroundImage: _imageFile != null
@@ -159,7 +156,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                   : (userData['profilePhoto'] != null
                                       ? NetworkImage(userData['profilePhoto'])
                                       : NetworkImage(
-                                          'https://via.placeholder.com/150')), // Placeholder
+                                          'https://via.placeholder.com/150')),
                             ),
                           ),
                           const SizedBox(width: 16),
@@ -174,7 +171,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                 ),
                               ),
                               Text(
-                                'Düz Öğrenci',
+                                'Öğrenci',
                                 style: GoogleFonts.inter(
                                   fontSize: 14,
                                   color: AppColors.subTitleText,
@@ -206,42 +203,39 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                               ),
                             ),
                           ),
-                          IconButton(
-                            icon: Icon(Icons.logout, color: Colors.black),
-                            onPressed: () {
-                              // Çıkış yapmadan önce kullanıcıya onay sorusu soralım
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    backgroundColor: Colors
-                                        .white, // Arka plan rengini beyaz yap
-                                    title: Text(
-                                        'Çıkmak İstediğinize Emin Misiniz?'),
-                                    content:
-                                        Text('Hesabınızdan çıkmak üzeresiniz.'),
-                                    actions: <Widget>[
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context)
-                                              .pop(); // Popup'u kapat
-                                        },
-                                        child: Text('Hayır'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.of(context)
-                                              .pop(); // Popup'u kapat
-                                          logout(context); // Çıkış işlemini yap
-                                        },
-                                        child: Text('Evet'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
-                          )
+                          if (!widget.hideIcon) // Butonu kontrol et
+                            IconButton(
+                              icon: Icon(Icons.logout, color: Colors.black),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      backgroundColor: Colors.white,
+                                      title: Text(
+                                          'Çıkmak İstediğinize Emin Misiniz?'),
+                                      content: Text(
+                                          'Hesabınızdan çıkmak üzeresiniz.'),
+                                      actions: <Widget>[
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                          },
+                                          child: Text('Hayır'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.of(context).pop();
+                                            logout(context);
+                                          },
+                                          child: Text('Evet'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                            ),
                         ],
                       ),
                     ],
@@ -302,7 +296,7 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      'Aldığınız Dersler',
+                      'Alınan Dersler',
                       style: GoogleFonts.inter(
                         fontSize: width < 380 ? 21 : 24,
                         color: Colors.black,
@@ -314,99 +308,167 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                 Padding(
                   padding: EdgeInsets.only(top: 16),
                   child: Column(
-                    children: List.generate(
-                      dersler.length,
-                      (index) => Padding(
-                        padding: const EdgeInsets.only(
-                            bottom: 12.0, right: 16, left: 16),
-                        child: Container(
-                          height: 90,
-                          width: MediaQuery.of(context).size.width,
-                          decoration: BoxDecoration(
-                              color: AppColors.secondary,
-                              borderRadius: BorderRadius.circular(12)),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 8),
-                            child: Column(
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(left: 16),
-                                  child: Row(
+                    children: dersler.isEmpty
+                        ? [
+                            Center(
+                              child: Text(
+                                'Henüz ders almadınız.',
+                                style: GoogleFonts.inter(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: AppColors.lightGray,
+                                ),
+                              ),
+                            ),
+                          ]
+                        : List.generate(
+                            dersler.length,
+                            (index) => Padding(
+                              padding: const EdgeInsets.only(
+                                  bottom: 12.0, right: 16, left: 16),
+                              child: Container(
+                                height: 90,
+                                width: MediaQuery.of(context).size.width,
+                                decoration: BoxDecoration(
+                                    color: AppColors.secondary,
+                                    borderRadius: BorderRadius.circular(12)),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 8),
+                                  child: Column(
                                     children: [
                                       Padding(
-                                        padding: const EdgeInsets.only(top: 14),
-                                        child: SizedBox(
-                                          width: 60,
-                                          height: 54,
-                                          child: Stack(
-                                            children: [
-                                              Positioned(
-                                                top: 0,
-                                                left: 0,
-                                                child: Container(
-                                                  height: 36,
-                                                  width: 36,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    color: AppColors.button,
-                                                  ),
-                                                  child: Center(
-                                                    child: SvgPicture.asset(
-                                                      'assets/icons/education.svg',
-                                                      width: 24,
-                                                      height: 24,
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              Positioned(
-                                                bottom: 0,
-                                                right: 0,
-                                                child: CircleAvatar(
-                                                  radius: 20,
-                                                  backgroundImage: NetworkImage(
-                                                      'https://via.placeholder.com/150'),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding:
-                                            const EdgeInsets.only(left: 16),
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
+                                        padding: EdgeInsets.only(left: 0),
+                                        child: Row(
                                           children: [
-                                            Text(
-                                              dersler[index]['title'],
-                                              style: GoogleFonts.inter(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  top: 14),
+                                              child: SizedBox(
+                                                width: 60,
+                                                height: 54,
+                                                child: Stack(
+                                                  children: [
+                                                    Positioned(
+                                                      top: 0,
+                                                      left: 0,
+                                                      child: Container(
+                                                        height: 36,
+                                                        width: 36,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          color:
+                                                              AppColors.button,
+                                                        ),
+                                                        child: Center(
+                                                          child:
+                                                              SvgPicture.asset(
+                                                            'assets/icons/education.svg',
+                                                            width: 24,
+                                                            height: 24,
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    Positioned(
+                                                      bottom: 0,
+                                                      right: 0,
+                                                      child: Container(
+                                                        height: 36,
+                                                        width: 36,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          shape:
+                                                              BoxShape.circle,
+                                                          color:
+                                                              AppColors.button,
+                                                        ),
+                                                        child: Center(
+                                                            child: Icon(
+                                                          Icons
+                                                              .person_2_outlined,
+                                                          color: Colors.white,
+                                                        )),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                            Row(
-                                              children: [
-                                                Text(
-                                                  formatLessonTime2(
-                                                      dersler[index]['day'],),
-                                                  style: GoogleFonts.inter(
-                                                      fontSize: 12,
-                                                      color: Colors.black),
-                                                ),
-                                                SizedBox(width: 8,),
-                                                Text(
-                                                  formatLessonTime(
-                                                      dersler[index]['startTime'],
-                                                      dersler[index]['endTime']),
-                                                  style: GoogleFonts.inter(
-                                                      fontSize: 12,
-                                                      color: Colors.black),
-                                                ),
-                                              ],
+                                            Padding(
+                                              padding: const EdgeInsets.only(
+                                                  left: 16),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    dersler[index]['title'],
+                                                    style: GoogleFonts.inter(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 4),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Row(
+                                                        children: [
+                                                          Icon(
+                                                            Icons
+                                                                .calendar_month,
+                                                            size: 18,
+                                                            color: AppColors
+                                                                .button,
+                                                          ),
+                                                          SizedBox(
+                                                            width: 2,
+                                                          ),
+                                                          Text(
+                                                            formatLessonTime2(
+                                                              dersler[index]
+                                                                  ['day'],
+                                                            ),
+                                                            style: GoogleFonts.inter(
+                                                                fontSize: 14,
+                                                                color: AppColors
+                                                                    .subTitleText),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                      SizedBox(
+                                                        width: 8,
+                                                      ),
+                                                      Icon(
+                                                        Icons.access_time,
+                                                        size: 18,
+                                                        color: AppColors.button,
+                                                      ),
+                                                      SizedBox(
+                                                        width: 2,
+                                                      ),
+                                                      Text(
+                                                        formatLessonTime(
+                                                            dersler[index]
+                                                                ['startTime'],
+                                                            dersler[index]
+                                                                ['endTime']),
+                                                        style: GoogleFonts.inter(
+                                                            fontSize: 14,
+                                                            color: AppColors
+                                                                .subTitleText),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -414,12 +476,9 @@ class _StudentProfileScreenState extends State<StudentProfileScreen> {
                                     ],
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    ),
                   ),
                 )
               ],
