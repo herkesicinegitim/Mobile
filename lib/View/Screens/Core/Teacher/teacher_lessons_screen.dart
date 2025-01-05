@@ -26,6 +26,7 @@ class _TeacherLessonsScreenState extends State<TeacherLessonsScreen> {
   String? selectedLessonType;
   String? userFullName;
   List? lessons;
+  int weeklyCount = 0;
 
   @override
   void initState() {
@@ -44,6 +45,7 @@ class _TeacherLessonsScreenState extends State<TeacherLessonsScreen> {
         setState(() {
           userFullName = userSnapshot['fullName'];
           lessons = userSnapshot['alınan_dersler'];
+          weeklyCount = userSnapshot['weeklyCount'] ?? 0;
         });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -146,7 +148,8 @@ class _TeacherLessonsScreenState extends State<TeacherLessonsScreen> {
   }
 
   String _generateJitsiMeetLink(String lessonId) {
-    String roomName = 'lesson_${lessonId}_${DateTime.now().millisecondsSinceEpoch}';
+    String roomName =
+        'lesson_${lessonId}_${DateTime.now().millisecondsSinceEpoch}';
     return 'https://meet.jit.si/$roomName';
   }
 
@@ -189,6 +192,24 @@ class _TeacherLessonsScreenState extends State<TeacherLessonsScreen> {
     });
 
     try {
+      DocumentSnapshot userDoc = await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(widget.userId)
+          .get();
+
+      if (!userDoc.exists) {
+        throw Exception('User not found');
+      }
+
+      int currentWeeklyCount = (userDoc.data() as Map<String, dynamic>)['weeklyCount'] ?? 0;
+      
+      if (currentWeeklyCount <= 0) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Haftalık ders oluşturma hakkınız kalmadı')),
+        );
+        return;
+      }
+
       Timestamp startTimestamp = Timestamp.fromDate(DateTime(
           selectedDate!.year,
           selectedDate!.month,
@@ -203,27 +224,27 @@ class _TeacherLessonsScreenState extends State<TeacherLessonsScreen> {
           endTime!.minute));
 
       List<dynamic> dersiAlanlar = [];
-      
-      String meetLink = _generateJitsiMeetLink(DateTime.now().millisecondsSinceEpoch.toString());
+
+      String meetLink = _generateJitsiMeetLink(
+          DateTime.now().millisecondsSinceEpoch.toString());
 
       DocumentReference newLessonRef =
           await FirebaseFirestore.instance.collection('lessons').add(
         {
           'title': titleController.text,
           'creator': userFullName,
-          'date': Timestamp.fromDate(selectedDate!),
           'startTime': startTimestamp,
           'endTime': endTimestamp,
           'lessonType': selectedLessonType,
           'dersi_alanlar': dersiAlanlar,
-          'googleMeetLink': meetLink
+          'googleMeetLink': meetLink,
+          'creatorId': widget.userId,
         },
       );
 
       Map<String, dynamic> newLesson = {
         'id': newLessonRef.id,
         'title': titleController.text,
-        'date': Timestamp.fromDate(selectedDate!),
         'startTime': startTimestamp,
         'endTime': endTimestamp,
         'lessonType': selectedLessonType,
@@ -239,6 +260,7 @@ class _TeacherLessonsScreenState extends State<TeacherLessonsScreen> {
           .doc(widget.userId)
           .update({
         'alınan_dersler': lessons,
+        'weeklyCount': currentWeeklyCount - 1,
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -483,32 +505,57 @@ class _TeacherLessonsScreenState extends State<TeacherLessonsScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(
-                            width: 100,
-                            height: 33,
-                            child: ElevatedButton(
+                            width: 140,
+                            height: 50,
+                            child: ElevatedButton.icon(
                               onPressed: _resetForm,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
+                                backgroundColor: Colors.red.shade400,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 20),
+                                elevation: 5,
                               ),
-                              child: Text(
+                              icon: Icon(
+                                Icons.cancel,
+                                color: Colors.white,
+                              ),
+                              label: Text(
                                 'İptal',
-                                style: TextStyle(color: Colors.white),
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
-                          SizedBox(width: 30),
+                          SizedBox(width: 20),
                           SizedBox(
-                            width: 100,
-                            height: 33,
-                            child: ElevatedButton(
-                              onPressed:
-                                  isLoading ? null : _saveLessonToFirebase,
+                            width: 140,
+                            height: 50,
+                            child: ElevatedButton.icon(
+                              onPressed: (isLoading || weeklyCount <= 0) ? null : _saveLessonToFirebase,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green,
+                                backgroundColor: Colors.green.shade400,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 12, horizontal: 20),
+                                elevation: 5,
                               ),
-                              child: Text(
-                                'Kaydet',
-                                style: TextStyle(color: Colors.white),
+                              icon: Icon(
+                                Icons.save,
+                                color: Colors.white,
+                              ),
+                              label: Text(
+                                weeklyCount <= 0 ? 'Kaydet' : 'Kaydet',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
