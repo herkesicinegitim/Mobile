@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:education/Core/Constants/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -279,7 +281,7 @@ class _MeetDetailForteacherState extends State<MeetDetailForteacher> {
                         );
                       },
                       child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        padding: const EdgeInsets.symmetric( vertical: 8.0),
                         child: Container(
                           padding: EdgeInsets.only(left: 12),
                           height: 60,
@@ -289,11 +291,7 @@ class _MeetDetailForteacherState extends State<MeetDetailForteacher> {
                           ),
                           child: Row(
                             children: [
-                              Icon(
-                                Icons.person,
-                                color: AppColors.button,
-                                size: 38,
-                              ),
+                              Icon(Icons.person, color: AppColors.button , size:38,),
                               SizedBox(width: 12),
                               Text(
                                 participants[index]['fullName'] ??

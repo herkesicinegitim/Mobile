@@ -24,6 +24,14 @@ class MeetDetailScreen extends StatefulWidget {
 }
 
 class _MeetDetailScreenState extends State<MeetDetailScreen> {
+  bool isActiveLesson() {
+    DateTime now = DateTime.now();
+    DateTime startTime = widget.lesson.startTime.toDate();
+    DateTime endTime = widget.lesson.endTime.toDate();
+
+    return now.isAfter(startTime) && now.isBefore(endTime);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,14 +44,18 @@ class _MeetDetailScreenState extends State<MeetDetailScreen> {
               ? Padding(
                   padding: const EdgeInsets.only(right: 16),
                   child: GestureDetector(
-                    onTap: () {
-                      _launchURL(widget.lesson.googleMeetLink);
-                    },
+                    onTap: isActiveLesson()
+                        ? () {
+                            _launchURL(widget.lesson.googleMeetLink);
+                          }
+                        : null,
                     child: Container(
                       width: 169,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: AppColors.button,
+                        color: isActiveLesson()
+                            ? AppColors.button
+                            : AppColors.darkGray.withOpacity(0.5),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -104,13 +116,20 @@ class _MeetDetailScreenState extends State<MeetDetailScreen> {
                     )
                   : SizedBox.shrink(),
               SizedBox(height: 24),
+              !isActiveLesson() ? Center(
+                  child: Text(
+                'Link ve buton ders zamanında aktif olacak',
+                style: GoogleFonts.inter(
+                  color: AppColors.subTitleText,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 14,
+                ),
+              )) : SizedBox(height: 0,),
+              SizedBox(height: 12),
               buildSectionTitle('Eğitmen'),
               SizedBox(height: 12),
               buildInstructorInfo(),
               SizedBox(height: 16),
-              buildSectionTitle('Öğrenciler'),
-              SizedBox(height: 16),
-              buildParticipantsList(),
             ],
           ),
         ),
@@ -171,14 +190,17 @@ class _MeetDetailScreenState extends State<MeetDetailScreen> {
                   children: [
                     Flexible(
                       child: GestureDetector(
-                        onTap: () {
-                          Clipboard.setData(ClipboardData(text: subTitle));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Meet Kopyalandı!'),
-                            ),
-                          );
-                        },
+                        onTap: isActiveLesson()
+                            ? () {
+                                Clipboard.setData(
+                                    ClipboardData(text: subTitle));
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Meet Kopyalandı!'),
+                                  ),
+                                );
+                              }
+                            : null,
                         child: Text(
                           subTitle,
                           style: GoogleFonts.inter(

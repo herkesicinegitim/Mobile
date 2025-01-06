@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:education/Core/Constants/app_colors.dart';
 import 'package:education/Data/Models/lesson.dart';
 import 'package:education/View/Widgets/CustomWidget/lessons_container.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -94,7 +95,7 @@ class _StudentHomeScreenState extends State<StudentHomeScreen> {
               future: fetchLessons(categoryNames),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return Center(child: CupertinoActivityIndicator());
                 } else if (snapshot.hasError) {
                   return Center(
                       child: Text('Bir hata oluştu: ${snapshot.error}'));

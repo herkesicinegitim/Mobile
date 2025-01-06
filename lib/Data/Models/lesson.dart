@@ -8,8 +8,8 @@ class Lesson {
   final String lessonType;
   final String creator;
   final List<String> participants;
-  final Timestamp day; // Timestamp for the lesson day
-
+  final Timestamp day;
+  final String creatorId;
   Lesson({
     required this.title,
     required this.startTime,
@@ -18,7 +18,8 @@ class Lesson {
     required this.lessonType,
     required this.creator,
     required this.participants,
-    required this.day, // Initialize Timestamp for day
+    required this.day,
+    required this.creatorId,
   });
 
   factory Lesson.fromMap(Map<String, dynamic> map) {
@@ -39,6 +40,7 @@ class Lesson {
       day: map['date'] is Timestamp
           ? map['date'] as Timestamp
           : Timestamp.fromDate(DateTime.now()), // Default to current time
+      creatorId: map['creatorId'] ?? 'Oluşturucu ID Yok',
     );
   }
 }

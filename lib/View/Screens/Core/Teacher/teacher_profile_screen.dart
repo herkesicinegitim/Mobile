@@ -70,23 +70,21 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: CupertinoActivityIndicator());
           }
 
           if (!snapshot.hasData) {
             return Center(child: Text('Kullanıcı verisi bulunamadı'));
           }
 
-          // Firestore'dan gelen user verisi
           var userData = snapshot.data!.data() as Map<String, dynamic>;
           var dersler = userData['alınan_dersler'] ?? [];
 
-          // Dersleri tarihe göre sıralama
           DateTime parseDate(dynamic date) {
             if (date is Timestamp) {
               return date.toDate();
             } else if (date is String) {
-              return DateTime.parse(date); // String tarih varsa
+              return DateTime.parse(date); 
             } else {
               throw Exception('Invalid date type');
             }
@@ -105,13 +103,11 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CircleAvatar(
-                            radius: 35,
-                            backgroundImage: userData['profilePhoto'] != null
-                                ? NetworkImage(userData['profilePhoto'])
-                                : NetworkImage(
-                                    'https://via.placeholder.com/150'),
-                          ),
+                           CircleAvatar(
+                            backgroundColor: AppColors.secondary,
+                              radius: 35,
+                              child: Icon(Icons.person , color: AppColors.button,size: 42,),
+                            ),
                           const SizedBox(width: 16),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -124,7 +120,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                                 ),
                               ),
                               Text(
-                                'Düz Öğretmen',
+                                'Öğretmen',
                                 style: GoogleFonts.inter(
                                   fontSize: 14,
                                   color: AppColors.subTitleText,
@@ -203,11 +199,11 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                         width: 50,
                         decoration: BoxDecoration(
                             shape: BoxShape.rectangle,
-                            color: Colors.purple.shade100,
+                            color: Colors.purple.shade50,
                             borderRadius: BorderRadius.circular(6)),
                         child: Icon(
                           CupertinoIcons.building_2_fill,
-                          color: Colors.purple.shade400,
+                          color: Colors.purple.shade200,
                         ),
                       ),
                       Padding(
@@ -216,7 +212,7 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Kalan aylık eğitim sayısı',
+                              'Haftalık ders açma hakkınız',
                               style: GoogleFonts.inter(
                                 fontSize: 14,
                                 color: AppColors.subTitleText,
@@ -224,10 +220,15 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                               ),
                             ),
                             Text(
-                              '${userData['weeklyCount']} ders',
+                              userData['weeklyCount'] == 0
+                                  ? 'Hakkınız kalmadı'
+                                  : '${userData['weeklyCount']} ders',
                               style: GoogleFonts.inter(
-                                fontSize: 16,
-                                color: AppColors.headTitleText,
+                                fontSize:
+                                    userData['weeklyCount'] == 0 ? 14 : 16,
+                                color: userData['weeklyCount'] == 0
+                                    ? Colors.red.shade300
+                                    : AppColors.headTitleText,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -253,117 +254,153 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                     ),
                   ),
                 ),
-                Padding(
-                  padding: EdgeInsets.only(top: 16),
-                  child: Column(
-                    children: List.generate(
-                      dersler.length,
-                      (index) => Padding(
-                        padding: const EdgeInsets.only(
-                            left: 16, right: 16, bottom: 12),
-                        child: Container(
-                          height: 80,
-                          width: MediaQuery.of(context).size.width,
-                          decoration: BoxDecoration(
-                              color: AppColors.secondary,
-                              borderRadius: BorderRadius.circular(12)),
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: EdgeInsets.only(left: 16),
-                                child: Row(
+                userData['alınan_dersler'].isEmpty
+                    ? Center(
+                        child: Padding(
+                            padding: EdgeInsets.only(top: 12, left: 16),
+                            child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Text('Henüz ders açmadınız .'))))
+                    : Padding(
+                        padding: EdgeInsets.only(top: 16),
+                        child: Column(
+                          children: List.generate(
+                            dersler.length,
+                            (index) => Padding(
+                              padding: const EdgeInsets.only(
+                                  left: 16, right: 16, bottom: 12),
+                              child: Container(
+                                height: 80,
+                                width: MediaQuery.of(context).size.width,
+                                decoration: BoxDecoration(
+                                    color: AppColors.secondary,
+                                    borderRadius: BorderRadius.circular(12)),
+                                child: Column(
                                   children: [
                                     Padding(
-                                      padding: const EdgeInsets.only(top: 14),
-                                      child: SizedBox(
-                                        width: 60,
-                                        height: 54,
-                                        child: Stack(
-                                          children: [
-                                            Positioned(
-                                              top: 0,
-                                              left: 0,
-                                              child: Container(
-                                                height: 36,
-                                                width: 36,
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  color: AppColors.button,
-                                                ),
-                                                child: Center(
-                                                  child: SvgPicture.asset(
-                                                    'assets/icons/education.svg',
-                                                    width: 24,
-                                                    height: 24,
-                                                    color: Colors.white,
+                                      padding: EdgeInsets.only(left: 16),
+                                      child: Row(
+                                        children: [
+                                          Padding(
+                                            padding:
+                                                const EdgeInsets.only(top: 14),
+                                            child: SizedBox(
+                                              width: 60,
+                                              height: 54,
+                                              child: Stack(
+                                                children: [
+                                                  Positioned(
+                                                    top: 0,
+                                                    left: 0,
+                                                    child: Container(
+                                                      height: 36,
+                                                      width: 36,
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: AppColors.button,
+                                                      ),
+                                                      child: Center(
+                                                        child: SvgPicture.asset(
+                                                          'assets/icons/education.svg',
+                                                          width: 24,
+                                                          height: 24,
+                                                          color: Colors.white,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  Positioned(
+                                                    bottom: 0,
+                                                    right: 0,
+                                                    child: Container(
+                                                      height: 36,
+                                                      width: 36,
+                                                      decoration: BoxDecoration(
+                                                        shape: BoxShape.circle,
+                                                        color: AppColors.button,
+                                                      ),
+                                                      child: Center(
+                                                        child: Icon(
+                                                          Icons.person,
+                                                          color: Colors.white,
+                                                          size: 22,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(width: 24),
+                                          Padding(
+                                            padding: EdgeInsets.only(top: 8),
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                SizedBox(
+                                                  width: 200,
+                                                  child: Text(
+                                                    '${dersler[index]['title']}',
+                                                    style: GoogleFonts.inter(
+                                                      fontSize: 16,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
                                                   ),
                                                 ),
-                                              ),
+                                                SizedBox(height: 6),
+                                                Row(
+                                                  children: [
+                                                    Icon(
+                                                      Icons.calendar_month,
+                                                      color: AppColors
+                                                          .subTitleText,
+                                                      size: 16,
+                                                    ),
+                                                    SizedBox(width: 4),
+                                                    Text(
+                                                      formatLessonTime2(
+                                                          dersler[index]
+                                                              ['startTime']),
+                                                      style: GoogleFonts.inter(
+                                                        fontSize: 14,
+                                                        color: AppColors
+                                                            .subTitleText,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      formatLessonTime(
+                                                        dersler[index]
+                                                            ['startTime'],
+                                                        dersler[index]
+                                                            ['endTime'],
+                                                      ),
+                                                      style: GoogleFonts.inter(
+                                                        fontSize: 14,
+                                                        color: AppColors
+                                                            .headTitleText,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
                                             ),
-                                            Positioned(
-                                              bottom: 0,
-                                              right: 0,
-                                              child: CircleAvatar(
-                                                radius: 20,
-                                                backgroundImage: NetworkImage(
-                                                    'https://via.placeholder.com/150'),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
+                                          )
+                                        ],
                                       ),
-                                    ),
-                                    SizedBox(width: 24),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        SizedBox(
-                                          width: 200,
-                                          child: Text(
-                                            '${dersler[index]['title']}',
-                                            style: GoogleFonts.inter(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        Row(
-                                          children: [
-                                            Text(
-                                              formatLessonTime2(
-                                                  dersler[index]['startTime']),
-                                              style: GoogleFonts.inter(
-                                                fontSize: 14,
-                                                color: AppColors.subTitleText,
-                                              ),
-                                            ),
-                                            Text(
-                                              formatLessonTime(
-                                                dersler[index]['startTime'],
-                                                dersler[index]['endTime'],
-                                              ),
-                                              style: GoogleFonts.inter(
-                                                fontSize: 14,
-                                                color: AppColors.headTitleText,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
                                     )
                                   ],
                                 ),
-                              )
-                            ],
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                )
+                      )
               ],
             ),
           );

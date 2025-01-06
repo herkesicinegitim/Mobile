@@ -115,7 +115,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
         stream: userStream,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
+            return Center(child: CupertinoActivityIndicator());
           }
 
           if (!snapshot.hasData) {
@@ -144,7 +144,7 @@ class _TeacherHomeScreenState extends State<TeacherHomeScreen> {
       stream: userStream,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
+          return Center(child: CupertinoActivityIndicator());
         }
 
         if (!snapshot.hasData) {

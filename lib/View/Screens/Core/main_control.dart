@@ -71,7 +71,7 @@ class _MainControlState extends State<MainControl> {
             : [
                 StudentHomeScreen(userId: widget.userId ),
                 StudentLessonsScreen(userData: _userData!,userId: widget.userId ),
-                StudentProfileScreen(userId:  widget.userId),
+                StudentProfileScreen( hideIcon: false, userId:  widget.userId),
               ];
       });
     } catch (e) {
@@ -84,7 +84,7 @@ class _MainControlState extends State<MainControl> {
     if (_userData == null) {
       return Scaffold(
         body: Center(
-          child: CircularProgressIndicator(),
+          child: CupertinoActivityIndicator(),
         ),
       );
     }

@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:intl/intl.dart'; 
+import 'package:intl/intl.dart';
 
 class LessonsContainer extends StatefulWidget {
   final Lesson lesson;
@@ -33,9 +33,10 @@ class _LessonsContainerState extends State<LessonsContainer> {
   void initState() {
     super.initState();
     checkLessonStatus();
-    print(widget.lesson);
   }
 
+  // Ders alma işlemi başlatıldığında çağrılır. 
+  // Haftalık ders hakkı kontrol edilir, kullanıcı onay verirse ders eklenir.
   Future<void> onTakeLesson() async {
     if (weeklyCount <= 0) {
       showPopup(
@@ -55,6 +56,7 @@ class _LessonsContainerState extends State<LessonsContainer> {
     }
   }
 
+  // Kullanıcıdan onay almak için pop-up gösterir.
   Future<bool> showConfirmationPopup({
     required String title,
     required String message,
@@ -90,6 +92,7 @@ class _LessonsContainerState extends State<LessonsContainer> {
     return confirmed;
   }
 
+  // Kullanıcının mevcut ders durumu ve haftalık hakları Firebase'den kontrol edilir.
   Future<void> checkLessonStatus() async {
     try {
       DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
@@ -100,12 +103,13 @@ class _LessonsContainerState extends State<LessonsContainer> {
       if (userSnapshot.exists) {
         final userData = userSnapshot.data() as Map<String, dynamic>;
         final List<dynamic> takenLessons = userData['alınan_dersler'] ?? [];
+        
         setState(() {
           weeklyCount = userData['weeklyCount'] ?? 5;
-          isLessonTaken = takenLessons.any((lesson) =>
-              lesson['title'] == widget.lesson.title &&
-              lesson['day'] == widget.lesson.day &&
-              lesson['startTime'] == widget.lesson.startTime);
+          isLessonTaken = takenLessons.any((lesson) => 
+            lesson['title'] == widget.lesson.title && 
+            lesson['startTime'] == widget.lesson.startTime
+          );
         });
       }
     } catch (e) {
@@ -113,6 +117,8 @@ class _LessonsContainerState extends State<LessonsContainer> {
     }
   }
 
+  // Kullanıcının ders geçmişini günceller.
+  // Ders alınırsa, haftalık hak düşer ve ders kullanıcıya eklenir.
   Future<void> updateUserLessons(String userId, Lesson lesson) async {
     try {
       DocumentReference userDocRef =
@@ -150,6 +156,7 @@ class _LessonsContainerState extends State<LessonsContainer> {
                 {
                   'fullName': userData['fullName'],
                   'profilePhoto': userData['profilePhoto'],
+                  'userId': widget.userId,
                 }
               ])
             });
@@ -173,6 +180,7 @@ class _LessonsContainerState extends State<LessonsContainer> {
     }
   }
 
+  // Kullanıcıya bir pop-up mesajı gösterir.
   void showPopup({required String title, required String message}) {
     showDialog(
       context: context,
@@ -193,11 +201,13 @@ class _LessonsContainerState extends State<LessonsContainer> {
     );
   }
 
+  // Tarihi belirli bir formatta döndürür.
   String formatDate(DateTime dateTime) {
     final DateFormat formatter = DateFormat('d MMMM yyyy');
     return formatter.format(dateTime);
   }
 
+  // Zamanı belirli bir formatta döndürür.
   String formatTime(DateTime dateTime) {
     final DateFormat formatter = DateFormat('HH:mm');
     return formatter.format(dateTime);
@@ -214,6 +224,7 @@ class _LessonsContainerState extends State<LessonsContainer> {
           context,
           MaterialPageRoute(
             builder: (context) => MeetDetailScreen(
+              isLessonTaken: isLessonTaken,
               lesson: widget.lesson,
             ),
           ),
@@ -264,10 +275,18 @@ class _LessonsContainerState extends State<LessonsContainer> {
                             Positioned(
                               bottom: 0,
                               right: 0,
-                              child: CircleAvatar(
-                                radius: 20,
-                                backgroundImage: NetworkImage(
-                                    'https://via.placeholder.com/150'),
+                              child: Container(
+                                height: 36,
+                                width: 36,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: AppColors.button,
+                                ),
+                                child: Center(
+                                    child: Icon(
+                                  Icons.person_2_outlined,
+                                  color: Colors.white,
+                                )),
                               ),
                             ),
                           ],
@@ -318,7 +337,9 @@ class _LessonsContainerState extends State<LessonsContainer> {
                                       fontSize: 14,
                                     ),
                                   ),
-                                  SizedBox(width: 8,),
+                                  SizedBox(
+                                    width: 8,
+                                  ),
                                   Text(
                                     '${formatTime(startTime)} - ${formatTime(endTime)}',
                                     style: GoogleFonts.inter(

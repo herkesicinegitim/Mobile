@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:education/Core/Constants/app_colors.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -119,7 +120,7 @@ class _StudentLessonsScreenState extends State<StudentLessonsScreen> {
                   future: _getClosestLesson(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(child: CircularProgressIndicator());
+                      return Center(child: CupertinoActivityIndicator());
                     }
 
                     if (snapshot.hasError || snapshot.data == null) {
@@ -220,7 +221,7 @@ class _StudentLessonsScreenState extends State<StudentLessonsScreen> {
               stream: getLessonsStream(),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
+                  return Center(child: CupertinoActivityIndicator());
                 }
 
                 if (snapshot.hasError) {

@@ -289,6 +289,7 @@ class _TeacherLessonsScreenState extends State<TeacherLessonsScreen> {
 
   void _resetForm() {
     setState(() {
+      titleController.text= '';
       selectedDate = null;
       selectedLessonType = null;
     });
