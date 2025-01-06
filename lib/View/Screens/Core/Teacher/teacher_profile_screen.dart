@@ -70,21 +70,23 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
             .snapshots(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CupertinoActivityIndicator());
+            return Center(child: CircularProgressIndicator());
           }
 
           if (!snapshot.hasData) {
             return Center(child: Text('Kullanıcı verisi bulunamadı'));
           }
 
+          // Firestore'dan gelen user verisi
           var userData = snapshot.data!.data() as Map<String, dynamic>;
           var dersler = userData['alınan_dersler'] ?? [];
 
+          // Dersleri tarihe göre sıralama
           DateTime parseDate(dynamic date) {
             if (date is Timestamp) {
               return date.toDate();
             } else if (date is String) {
-              return DateTime.parse(date); 
+              return DateTime.parse(date); // String tarih varsa
             } else {
               throw Exception('Invalid date type');
             }
@@ -103,11 +105,13 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                           CircleAvatar(
-                            backgroundColor: AppColors.secondary,
-                              radius: 35,
-                              child: Icon(Icons.person , color: AppColors.button,size: 42,),
-                            ),
+                          CircleAvatar(
+                            radius: 35,
+                            backgroundImage: userData['profilePhoto'] != null
+                                ? NetworkImage(userData['profilePhoto'])
+                                : NetworkImage(
+                                    'https://via.placeholder.com/150'),
+                          ),
                           const SizedBox(width: 16),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -199,11 +203,11 @@ class _TeacherProfileScreenState extends State<TeacherProfileScreen> {
                         width: 50,
                         decoration: BoxDecoration(
                             shape: BoxShape.rectangle,
-                            color: Colors.purple.shade50,
+                            color: Colors.purple.shade100,
                             borderRadius: BorderRadius.circular(6)),
                         child: Icon(
                           CupertinoIcons.building_2_fill,
-                          color: Colors.purple.shade200,
+                          color: Colors.purple.shade400,
                         ),
                       ),
                       Padding(

@@ -84,7 +84,7 @@ class _MainControlState extends State<MainControl> {
     if (_userData == null) {
       return Scaffold(
         body: Center(
-          child: CupertinoActivityIndicator(),
+          child: CircularProgressIndicator(),
         ),
       );
     }
